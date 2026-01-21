@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Doce Arte | Brigadeiros e Trufas</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial, Helvetica, sans-serif;
+  background:#fff7f2;
+  color:#3b2f2f;
+}
+header{
+  background:#6b3e26;
+  color:#fff;
+  text-align:center;
+  padding:40px 20px;
+}
+.container{
+  max-width:1100px;
+  margin:auto;
+  padding:20px;
+}
+h2{
+  text-align:center;
+  color:#6b3e26;
+}
+.produtos{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:20px;
+}
+.produto{
+  background:#fff;
+  padding:15px;
+  border-radius:12px;
+  box-shadow:0 2px 8px rgba(0,0,0,.1);
+  text-align:center;
+}
+.produto img{
+  width:100%;
+  border-radius:12px;
+  margin-bottom:8px;
+}
+.btn{
+  background:#25d366;
+  color:#fff;
+  border:none;
+  border-radius:20px;
+  padding:8px 16px;
+  cursor:pointer;
+  margin:5px;
+}
+.controle{
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  align-items:center;
+  margin-top:8px;
+}
+#pedido{
+  background:#fff;
+  padding:20px;
+  border-radius:12px;
+  box-shadow:0 2px 8px rgba(0,0,0,.1);
+}
+footer{
+  background:#6b3e26;
+  color:#fff;
+  text-align:center;
+  padding:20px;
+  margin-top:40px;
+}
+select,input{
+  width:100%;
+  padding:8px;
+  margin-top:5px;
+  border-radius:8px;
+  border:1px solid #ccc;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>Doce Arte</h1>
+<p>Monte quantas caixas quiser e envie pelo WhatsApp 🍫📲</p>
+</header>
+
+<section class="container">
+<h2>📦 Escolha a embalagem</h2>
+
+<div class="produtos">
+  <div class="produto">
+    <h3>Unidade</h3>
+    <button class="btn" onclick="addCaixa(1)">Adicionar</button>
+  </div>
+
+  <div class="produto">
+    <h3>Caixa com 4</h3>
+    <p>10% de desconto</p>
+    <button class="btn" onclick="addCaixa(4)">Adicionar</button>
+  </div>
+
+  <div class="produto">
+    <h3>Caixa com 6</h3>
+    <p>15% de desconto</p>
+    <button class="btn" onclick="addCaixa(6)">Adicionar</button>
+  </div>
+
+  <div class="produto">
+    <h3>Caixa com 12</h3>
+    <p>18% de desconto</p>
+    <button class="btn" onclick="addCaixa(12)">Adicionar</button>
+  </div>
+</div>
+</section>
+
+<section class="container">
+<h2>🍫 Sabores</h2>
+<div class="produtos" id="sabores"></div>
+</section>
+
+<section class="container">
+<h2>🧾 Resumo do pedido</h2>
+
+<div id="pedido">
+  <ul id="resumo"></ul>
+  <p id="economia" style="font-weight:bold;color:#2e7d32"></p>
+
+  <label>📅 Data desejada</label>
+  <input type="date" id="data">
+
+  <label>📍 Endereço</label>
+  <input type="text" id="endereco">
+
+  <label>🚚 Tele-entrega (R$5)</label>
+  <select id="tele">
+    <option>Não</option>
+    <option>Sapucaia / Nova Santa Rita</option>
+  </select>
+
+  <label>💳 Forma de pagamento</label>
+  <select id="pagamento">
+    <option>Pix</option>
+    <option>Cartão</option>
+    <option>Dinheiro</option>
+  </select>
+
+  <br><br>
+  <button class="btn" onclick="finalizar()">Enviar pelo WhatsApp</button>
+</div>
+</section>
+
+<footer>
+<p>Doce Arte © 2026</p>
+</footer>
+
+<script>
+const sabores=[
+ {n:'Brigadeiro tradicional',p:2.5,img:'https://via.placeholder.com/150/eadcd1'},
+ {n:'Brigadeiro leite ninho',p:2.5,img:'https://via.placeholder.com/150/f5efe6'},
+ {n:'Brigadeiro pistache',p:5,img:'https://via.placeholder.com/150/dcead5'},
+ {n:'Trufa comum',p:3.5,img:'https://via.placeholder.com/150/e0c4a8'},
+ {n:'Trufa premium',p:6,img:'https://via.placeholder.com/150/c9b29b'}
+];
+
+let caixas=[], atual=null;
+
+const div=document.getElementById('sabores');
+sabores.forEach(s=>{
+ div.innerHTML+=`
+ <div class="produto">
+   <img src="${s.img}">
+   <h4>${s.n}</h4>
+   <div class="controle">
+     <button class="btn" onclick="alt('${s.n}',-1)">-</button>
+     <span>0</span>
+     <button class="btn" onclick="alt('${s.n}',1)">+</button>
+   </div>
+ </div>`;
+});
+
+function addCaixa(t){atual={t,it:{}};caixas.push(atual);atualizar();}
+function alt(n,d){if(!atual)return;atual.it[n]=(atual.it[n]||0)+d;if(atual.it[n]<0)atual.it[n]=0;atualizar();}
+
+function atualizar(){
+ const r=document.getElementById('resumo');
+ const e=document.getElementById('economia');
+ r.innerHTML=''; let total=0, sem=0;
+
+ caixas.forEach((c,i)=>{
+  let li=`Caixa ${i+1} (${c.t} un): `;
+  for(let s in c.it){
+   if(c.it[s]>0){
+    const p=sabores.find(x=>x.n===s).p;
+    let dsc=c.t==4?0.1:c.t==6?0.15:c.t==12?0.18:0;
+    total+=p*(1-dsc)*c.it[s];
+    sem+=p*c.it[s];
+    li+=`${c.it[s]}x ${s}, `;
+   }
+  }
+  r.innerHTML+=`<li>${li}</li>`;
+ });
+
+ if(sem>total)e.textContent=`💰 Economia: R$ ${(sem-total).toFixed(2)}`;
+}
+
+function finalizar(){
+ let msg='Olá! Gostaria de fazer o pedido:%0A';
+ let total=0;
+
+ caixas.forEach((c,i)=>{
+  msg+=`Caixa ${i+1} (${c.t} un):%0A`;
+  for(let s in c.it){
+   if(c.it[s]>0){
+    const p=sabores.find(x=>x.n===s).p;
+    let dsc=c.t==4?0.1:c.t==6?0.15:c.t==12?0.18:0;
+    let sub=p*(1-dsc)*c.it[s];
+    total+=sub;
+    msg+=`${c.it[s]}x ${s} — R$ ${sub.toFixed(2)}%0A`;
+   }
+  }
+ });
+
+ if(tele.value.includes('Sapucaia')) total+=5;
+
+ msg+=`%0A💰 Total: R$ ${total.toFixed(2)}`;
+ msg+=`%0A💳 Pagamento: ${pagamento.value}`;
+ msg+=`%0A📅 Data: ${data.value}`;
+ msg+=`%0A📍 Endereço: ${endereco.value}`;
+ msg+=`%0A🚚 Entrega: ${tele.value}`;
+
+ window.open(`https://wa.me/5551992294090?text=${msg}`);
+}
+
+document.getElementById('data').min=new Date().toISOString().split('T')[0];
+</script>
+
+</body>
+</html>
